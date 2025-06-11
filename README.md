@@ -83,4 +83,9 @@
 
 ## Issues
 - Not an issue per say but currently the model stroke input is flipped, although it does not seem to affect the accuracy
+    - The reason that we see flipped stoke plot is because of the way we plot the strokes
+    - The image is shown as TL -> TR & TL -> BL but the strokes are shown as BL -> BR & BL -> TL (Regular geometric 2D plane)
+    - So if we manually try to flip the strokes by subtracting, say, 500 from the y-axis the accuracy goes down the drain.
+    ![Normal](images/debug_174715.png)
+    ![Manually flipped](images/debug_174640.png)
 - Flower image was not being predicted. Issue: From my earlier analysis I found that on an average only 50 points were being used despite the max limit of 130. So, I capped the points limit to 50 fearing that increasing might lead to accuracy loss. Fix: Now as Dougles-Peuckers algo is working fine the max limit is updated to 130
