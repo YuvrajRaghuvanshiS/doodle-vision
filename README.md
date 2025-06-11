@@ -31,6 +31,56 @@
 - This made it consistent and predictable so updated the inference.py as well to feed same data
 
 
+## Current implementation
+- I have heavily modularized this code to handle text input and camera based finger gestures input.
+- File description: 
+- Inputs: 
+    - base_input.py: Contains an abstract base class for handling inputs
+    - gesture_input.py: Contains an inherited class for handling gesture based inputs
+    - mouse_input.py: Contains an inherited class for handling mouse based inputs.
+    
+- Canvas: 
+    - drawing_canvas.py: Creates and maintains the canvas
+
+- Processors: 
+    - image_processor.py: Grayscale and downsamples the image to 28x28 pixels
+    - strokes_processor.py: Reduce and sample the stroke points using Douglas-Peucker algo and feed into the model.
+
+- Engine: 
+    - prediction_engine.py: Predicts and save debug data
+
+- main.py: Brings it all together
+
+
+### How to run
+1.  Create & activate virtual environment
+    ```python
+    python -m venv .venv
+    .venv\Scripts\active # On windows
+    source .venv/bin/activate # On linux
+    # Mac is stupid, I won't write
+    ```
+
+2. Install requirements
+    ```python
+    pip install -r requirements.txt
+    ```
+
+3. Run main.py
+    ```python
+    python main.py
+    ```
+
+4. Use commands
+    ```
+    m: Mouse input (default)
+    g: Gesture input
+    p: Predict
+    c: Clear
+    esc: Exit
+    ```
+
+
 ## Issues
 - Not an issue per say but currently the model stroke input is flipped, although it does not seem to affect the accuracy
 - Flower image was not being predicted. Issue: From my earlier analysis I found that on an average only 50 points were being used despite the max limit of 130. So, I capped the points limit to 50 fearing that increasing might lead to accuracy loss. Fix: Now as Dougles-Peuckers algo is working fine the max limit is updated to 130
