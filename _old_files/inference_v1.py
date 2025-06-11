@@ -16,7 +16,7 @@ MAX_SEQ_LEN = 130
 STROKE_FEATURES = 3
 IMG_SIZE = 28
 TARGET_STROKE_POINTS = 50  # Optimized based on training data analysis
-DEBUG_DIR = "debug_data"
+DEBUG_DIR = "debug"
 os.makedirs(DEBUG_DIR, exist_ok=True)
 
 # Global variables
@@ -24,7 +24,7 @@ drawing = False
 last_point = None
 current_strokes = []
 canvas = np.zeros((480, 640, 3), dtype=np.uint8)
-model = load_model("best_hybrid_model.keras")
+model = load_model("../models/best_hybrid_model.keras")
 
 
 def douglas_peucker_simplify(points, epsilon=2.0):
