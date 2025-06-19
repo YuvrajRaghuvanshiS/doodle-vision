@@ -112,8 +112,26 @@ class PredictionEngine:
         image_batch = np.expand_dims(image_input, axis=0)
 
         if self.model_type == "tflite":
-            self.interpreter.set_tensor(self.input_details[0]["index"], stroke_batch)
-            self.interpreter.set_tensor(self.input_details[1]["index"], image_batch)
+
+            # Ensure stroke_batch is (1, 130, 3)
+            if stroke_batch.ndim == 3:
+                pass  # already fine
+            elif stroke_batch.ndim == 2:
+                stroke_batch = np.expand_dims(stroke_batch, axis=0)
+            else:
+                raise ValueError(f"Unexpected shape for stroke_batch: {stroke_batch.shape}")
+
+            # Ensure image_batch is (1, 28, 28, 1)
+            if image_batch.ndim == 3:
+                image_batch = np.expand_dims(image_batch, axis=0)
+            elif image_batch.ndim == 4:
+                pass  # already correct
+            else:
+                raise ValueError(f"Unexpected shape for image_batch: {image_batch.shape}")
+
+
+            self.interpreter.set_tensor(self.input_details[0]["index"], image_batch)
+            self.interpreter.set_tensor(self.input_details[1]["index"], stroke_batch)
             self.interpreter.invoke()
             predictions = self.interpreter.get_tensor(self.output_details[0]["index"])
         else:
