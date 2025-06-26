@@ -16,7 +16,11 @@ try:
     import tflite_runtime.interpreter as tflite
 except ImportError:
     tflite = None
-    # import tensorflow.lite as tflite
+
+try:
+    import onnxruntime as ort
+except ImportError:
+    ort = None
 
 
 class PredictionEngine:
@@ -38,6 +42,13 @@ class PredictionEngine:
             self.interpreter.allocate_tensors()
             self.input_details = self.interpreter.get_input_details()
             self.output_details = self.interpreter.get_output_details()
+        elif model_path.endswith(".onnx"):
+            if ort is None:
+                raise ImportError("onnxruntime is required for loading .onnx models.")
+            self.model_type = "onnx"
+            self.session = ort.InferenceSession(model_path)
+            self.input_names = [inp.name for inp in self.session.get_inputs()]
+            self.output_name = self.session.get_outputs()[0].name
         else:
             self.model_type = "keras"
             if keras_load_model is None:
@@ -112,14 +123,15 @@ class PredictionEngine:
         image_batch = np.expand_dims(image_input, axis=0)
 
         if self.model_type == "tflite":
-
             # Ensure stroke_batch is (1, 130, 3)
             if stroke_batch.ndim == 3:
                 pass  # already fine
             elif stroke_batch.ndim == 2:
                 stroke_batch = np.expand_dims(stroke_batch, axis=0)
             else:
-                raise ValueError(f"Unexpected shape for stroke_batch: {stroke_batch.shape}")
+                raise ValueError(
+                    f"Unexpected shape for stroke_batch: {stroke_batch.shape}"
+                )
 
             # Ensure image_batch is (1, 28, 28, 1)
             if image_batch.ndim == 3:
@@ -127,26 +139,35 @@ class PredictionEngine:
             elif image_batch.ndim == 4:
                 pass  # already correct
             else:
-                raise ValueError(f"Unexpected shape for image_batch: {image_batch.shape}")
-
+                raise ValueError(
+                    f"Unexpected shape for image_batch: {image_batch.shape}"
+                )
 
             self.interpreter.set_tensor(self.input_details[0]["index"], image_batch)
             self.interpreter.set_tensor(self.input_details[1]["index"], stroke_batch)
             self.interpreter.invoke()
             predictions = self.interpreter.get_tensor(self.output_details[0]["index"])
+        elif self.model_type == "onnx":
+            inputs = {
+                self.input_names[0]: image_batch.astype(np.float32),
+                self.input_names[1]: stroke_batch.astype(np.float32),
+            }
+            predictions = self.session.run([self.output_name], inputs)[0]
         else:
             predictions = self.model.predict([stroke_batch, image_batch], verbose=0)
 
         # Get top 5 predictions
         top5_indices = np.argsort(predictions[0])[-5:][::-1]
         top5_probs = predictions[0][top5_indices] * 100
-
-        results = []
-        for idx, prob in zip(top5_indices, top5_probs):
-            class_name = (
-                self.class_names[idx] if idx < len(self.class_names) else f"Class_{idx}"
+        results = [
+            (
+                self.class_names[idx]
+                if idx < len(self.class_names)
+                else f"Class_{idx}",
+                prob,
             )
-            results.append((class_name, prob))
+            for idx, prob in zip(top5_indices, top5_probs)
+        ]
 
         debug_path = None
         if self.debug:
