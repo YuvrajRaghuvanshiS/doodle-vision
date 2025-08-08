@@ -1,0 +1,50 @@
+backpack
+banana
+bat
+beard
+bicycle
+bird
+book
+bread
+bridge
+bucket
+bush
+butterfly
+cactus
+camel
+camera
+candle
+cow
+crab
+crown
+cup
+donut
+dumbbell
+elbow
+eye
+fish
+flashlight
+flip flops
+flower
+foot
+hat
+helicopter
+hot air balloon
+leaf
+leg
+light bulb
+lightning
+motorbike
+mouth
+nail
+pencil
+pillow
+river
+school bus
+sock
+spoon
+table
+telephone
+tooth
+tree
+umbrella

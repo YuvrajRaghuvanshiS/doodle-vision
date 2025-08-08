@@ -26,7 +26,13 @@ except ImportError:
 class PredictionEngine:
     """Prediction engine with streamlined debug visualization"""
 
-    def __init__(self, model_path: str, debug_dir: str = "debug", debug: bool = False):
+    def __init__(
+        self,
+        model_path: str,
+        num_classes: int = 50,
+        debug_dir: str = "debug",
+        debug: bool = False,
+    ):
         self.debug = debug
         self.model_path = model_path
         self.debug_dir = debug_dir
@@ -55,58 +61,16 @@ class PredictionEngine:
                 raise ImportError("TensorFlow is required for loading .keras models.")
             self.model = keras_load_model(model_path)
 
-        self.class_names = [
-            "backpack",
-            "banana",
-            "bat",
-            "beard",
-            "bicycle",
-            "bird",
-            "book",
-            "bread",
-            "bridge",
-            "bucket",
-            "bush",
-            "butterfly",
-            "cactus",
-            "camel",
-            "camera",
-            "candle",
-            "cow",
-            "crab",
-            "crown",
-            "cup",
-            "donut",
-            "dumbbell",
-            "elbow",
-            "eye",
-            "fish",
-            "flashlight",
-            "flip flops",
-            "flower",
-            "foot",
-            "hat",
-            "helicopter",
-            "hot air balloon",
-            "leaf",
-            "leg",
-            "light bulb",
-            "lightning",
-            "motorbike",
-            "mouth",
-            "nail",
-            "pencil",
-            "pillow",
-            "river",
-            "school bus",
-            "sock",
-            "spoon",
-            "table",
-            "telephone",
-            "tooth",
-            "tree",
-            "umbrella",
-        ]
+        self.class_names = self._get_class_names(num_classes)
+
+    def _get_class_names(self, num_classes):
+        if not os.path.exists(f"engine/{num_classes}_classes.txt"):
+            raise FileNotFoundError("Check the number of classes")
+
+        with open(f"engine/{num_classes}_classes.txt", "r") as f:
+            lines = f.readlines()
+
+        return [line.strip() for line in lines]
 
     def predict(
         self,
