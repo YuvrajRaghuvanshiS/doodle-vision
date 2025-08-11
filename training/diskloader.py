@@ -396,7 +396,7 @@ test_ds = build_dataset(test_images, test_strokes, test_labels).take(
 
 # %%
 class MemoryCleanupCallback(tf.keras.callbacks.Callback):
-    def on_epoch_end(self):
+    def on_epoch_end(self, epoch, logs=None):
         gc.collect()
 
 
