@@ -37,6 +37,7 @@ import json
 import math
 import os
 import pickle
+import random
 from glob import glob
 
 import matplotlib.pyplot as plt
@@ -283,6 +284,60 @@ else:
             labels.append(label)
 
     print(f"[Original Mode] Loaded {len(labels):,} samples.")
+
+
+# %%
+def plot_images_and_strokes(images, strokes, labels, n=100):
+    # Pick n random indices
+    idxs = random.sample(range(len(labels)), n)
+
+    plt.figure(figsize=(10, n * 1.5))  # Large enough for many rows
+    for i, idx in enumerate(idxs):
+        # Load image
+        if isinstance(images[idx], str):  # Path
+            img = np.load(images[idx])
+        elif isinstance(images[idx], tuple):  # (label, i) for Original Mode
+            label_id, ex_id = images[idx]
+            cls = list(LABEL_MAP.keys())[label_id]
+            img = np.load(os.path.join(DATA_DIR_IMAGES, f"{cls}.npy"), mmap_mode="r")[
+                ex_id
+            ]
+        else:  # Already in memory
+            img = images[idx]
+
+        img = img.reshape(28, 28)
+
+        # Load stroke
+        if isinstance(strokes[idx], str):  # Path
+            strk = np.load(strokes[idx])
+        elif isinstance(strokes[idx], tuple):  # (label, i)
+            label_id, ex_id = strokes[idx]
+            cls = list(LABEL_MAP.keys())[label_id]
+            str_arr = np.load(
+                os.path.join(DATA_DIR_STROKES, f"{cls}.npz"), allow_pickle=True
+            )["strokes"]
+            strk = str_arr[ex_id]
+        else:  # Already in memory
+            strk = strokes[idx]
+
+        # Plot
+        plt.subplot(n, 2, 2 * i + 1)
+        plt.imshow(img, cmap="gray")
+        plt.axis("off")
+        plt.title(f"Label: {labels[idx]}")
+
+        plt.subplot(n, 2, 2 * i + 2)
+        plt.plot(
+            strk[:, 0], -strk[:, 1], marker="o", markersize=1
+        )  # Flip y-axis for natural orientation
+        plt.axis("equal")
+        plt.axis("off")
+
+    plt.tight_layout()
+    plt.savefig(f"{n}_random_samples.png")
+
+
+plot_images_and_strokes(images, strokes, labels, n=100)
 
 
 # %%
