@@ -1,4 +1,10 @@
 .venv
 training/.ipynb_checkpoints
 training/.vscode
-training/dataset
+
+training/dataset/images
+training/dataset/strokes
+training/dataset/combined_strokes
+training/dataset/processed
+
+__pycache__
