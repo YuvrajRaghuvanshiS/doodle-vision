@@ -18,13 +18,13 @@ class DrawingRecognitionApp:
     """Main application controller"""
 
     def __init__(
-        self, model_path: str = "models/best_hybrid_model_strokes_scaled.keras"
+        self, model_path: str = "models/best_model_345_classes_30000_examples.keras"
     ):
         # Initialize components
         self.canvas = DrawingCanvas(640, 480)
         self.stroke_processor = StrokeProcessor()
         self.image_processor = ImageProcessor()
-        self.prediction_engine = PredictionEngine(model_path)
+        self.prediction_engine = PredictionEngine(model_path, num_classes=345)
 
         # Input handler (will be set based on mode)
         self.input_handler: Optional[BaseInputHandler] = None
