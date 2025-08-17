@@ -1,5 +1,7 @@
 .venv
-training/.ipynb_checkpoints
+.tens
+.tens-and-cuda
+.ipynb_checkpoints
 training/.vscode
 
 training/dataset/images
